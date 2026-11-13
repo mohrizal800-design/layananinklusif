@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pelatihan Layanan Inklusif - Moh. Rizal, S.Pd.,Gr</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk Efek Suara dan Backsound Sintesis Mandiri -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #14b8a6;
+        }
+
+        /* Glassmorphism & Card Hover Effects */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .module-card {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.6s ease;
+        }
+        .module-card:hover::before {
+            left: 100%;
+        }
+        .module-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 30px -10px rgba(20, 184, 166, 0.25);
+            border-color: rgba(20, 184, 166, 0.4);
+        }
+
+        /* Animated Audio Equalizer Bars */
+        .eq-bar {
+            width: 3px;
+            background-color: #2dd4bf;
+            border-radius: 2px;
+            transition: height 0.2s ease;
+        }
+        .playing .eq-bar-1 { animation: eq 0.8s ease-in-out infinite alternate; }
+        .playing .eq-bar-2 { animation: eq 0.5s ease-in-out infinite alternate 0.2s; }
+        .playing .eq-bar-3 { animation: eq 0.7s ease-in-out infinite alternate 0.4s; }
+        @keyframes eq {
+            0% { height: 4px; }
+            100% { height: 16px; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-teal-500 selection:text-white relative">
+
+    <!-- Dekorasi Cahaya Latar Belakang -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-teal-600/15 blur-[130px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-indigo-600/15 blur-[130px] pointer-events-none z-0"></div>
+
+    <!-- Navigasi Utama (Sticky) -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Brand / Identitas Portal -->
+            <a href="#" class="flex items-center gap-3 group focus:outline-none" onmouseenter="playHoverSound()" onclick="playClickSound()">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20 group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-hands-holding-child text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold tracking-widest uppercase text-teal-400 block">Portal E-Pelatihan</span>
+                    <h1 class="font-heading font-bold text-lg sm:text-xl text-white tracking-tight">Layanan Inklusif</h1>
+                </div>
+            </a>
+
+            <!-- Kontrol Audio & Tombol Cepat -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Tombol Backsound -->
+                <button id="bgmToggleBtn" onclick="toggleBacksound()" onmouseenter="playHoverSound()" class="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-xs sm:text-sm font-medium text-slate-200 transition-all shadow-sm" title="Putar/Hentikan Musik Latar">
+                    <div id="eqContainer" class="flex items-end gap-0.5 h-4 w-3.5 justify-center">
+                        <span class="eq-bar eq-bar-1 h-1.5"></span>
+                        <span class="eq-bar eq-bar-2 h-3"></span>
+                        <span class="eq-bar eq-bar-3 h-2"></span>
+                    </div>
+                    <span id="bgmText" class="hidden md:inline">Musik: Mati</span>
+                </button>
+
+                <!-- Tombol Efek Suara (SFX) -->
+                <button id="sfxToggleBtn" onclick="toggleSFX()" onmouseenter="playHoverSound()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-xs sm:text-sm font-medium text-teal-400 transition-all shadow-sm" title="Aktifkan/Matikan Nada Tombol">
+                    <i id="sfxIcon" class="fa-solid fa-volume-high"></i>
+                    <span id="sfxText" class="hidden lg:inline">Nada: Aktif</span>
+                </button>
+
+                <!-- Tombol Langsung ke Refleksi -->
+                <a href="https://s.id/siapGPK" target="_blank" rel="noopener noreferrer" onmouseenter="playHoverSound()" onclick="playSuccessSound()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-heading font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Refleksi GPK</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+
+        <!-- Hero Section -->
+        <section class="relative rounded-3xl glass-panel p-6 sm:p-10 lg:p-12 mb-12 overflow-hidden border border-slate-700/60 shadow-2xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+                        MODUL TERPADU PENDIDIKAN INKLUSIF
+                    </div>
+                    
+                    <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+                        Penguatan Layanan Inklusif di <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-indigo-400">Satuan Pendidikan</span>
+                    </h2>
+                    
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+                        Pusat sumber belajar mandiri dan terstruktur bagi pendidik untuk memahami keberagaman peserta didik, menyusun Program Pembelajaran Individual (PPI), asesmen, hingga strategi modifikasi perilaku yang efektif dan ramah anak.
+                    </p>
+
+                    <!-- Bar Progress Belajar -->
+                    <div class="pt-2 max-w-md">
+                        <div class="flex justify-between text-xs font-medium text-slate-400 mb-2">
+                            <span>Progres Eksplorasi Materi Anda</span>
+                            <span id="progressText" class="text-teal-400 font-bold">0 / 11 Materi (0%)</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                            <div id="progressBar" class="h-full bg-gradient-to-r from-teal-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-2">
+                        <a href="#daftar-materi" onmouseenter="playHoverSound()" onclick="playClickSound()" class="px-6 py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-heading font-bold text-sm flex items-center gap-2.5 shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 transition-all">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                            Mulai Pelajari Materi
+                        </a>
+                        <button onclick="openDeveloperModal()" onmouseenter="playHoverSound()" class="px-5 py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/80 text-slate-200 font-medium text-sm flex items-center gap-2.5 transition-all">
+                            <i class="fa-solid fa-user-tie text-teal-400"></i>
+                            Profil Pengembang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kartu Profil Pengembang di Hero -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="w-full max-w-sm rounded-2xl bg-gradient-to-b from-slate-800/90 to-slate-900/90 p-6 border border-slate-700/80 shadow-xl relative group hover:border-teal-500/50 transition-all duration-500 animate-float">
+                        <div class="absolute top-4 right-4 px-2.5 py-1 rounded-md bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[11px] font-semibold">
+                            Fasilitator & Pengembang
+                        </div>
+                        <div class="flex items-center gap-4 mb-5 mt-2">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-teal-500 to-indigo-600 p-0.5 shadow-lg">
+                                <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-2xl font-heading font-extrabold text-teal-400">
+                                    MR
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white group-hover:text-teal-300 transition-colors">Moh. Rizal, S.Pd.,Gr</h3>
+                                <p class="text-xs font-semibold text-amber-400 flex items-center gap-1.5 mt-0.5">
+                                    <i class="fa-solid fa-medal"></i> Guru Inklusif Tingkat Mahir
+                                </p>
+                                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-1">
+                                    <i class="fa-solid fa-location-dot text-rose-400"></i> Kab. Parigi Moutong
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-300 leading-relaxed mb-4">
+                            "Pendidikan inklusif bukan sekadar menerima anak berkebutuhan khusus di sekolah, melainkan memastikan setiap anak merasa diterima, dihargai, dan difasilitasi potensinya secara optimal."
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t border-slate-800">
+                            <div>
+                                <span class="block font-heading font-bold text-base text-white">11</span>
+                                <span class="text-[11px] text-slate-400">Modul Utama</span>
+                            </div>
+                            <div>
+                                <span class="block font-heading font-bold text-base text-teal-400">100%</span>
+                                <span class="text-[11px] text-slate-400">Akses Terbuka</span>
+                            </div>
+                            <div>
+                                <span class="block font-heading font-bold text-base text-amber-400">GPK</span>
+                                <span class="text-[11px] text-slate-400">Terintegrasi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter & Pencarian Materi -->
+        <section id="daftar-materi" class="mb-8 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="font-heading text-2xl font-bold text-white flex items-center gap-2.5">
+                        <i class="fa-solid fa-layer-group text-teal-400"></i>
+                        Katalog Materi Pelatihan
+                    </h3>
+                    <p class="text-sm text-slate-400 mt-1">Klik pada kartu materi untuk membuka presentasi atau tandai jika sudah selesai dipelajari.</p>
+                </div>
+
+                <!-- Kotak Pencarian -->
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="filterMaterials()" placeholder="Cari topik atau kata kunci..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400 transition-all">
+                </div>
+            </div>
+
+            <!-- Tombol Filter Kategori -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="categoryTabs">
+                <button onclick="setCategory('Semua')" onmouseenter="playHoverSound()" class="cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20">
+                    Semua Materi (11)
+                </button>
+                <button onclick="setCategory('Fondasi & Asesmen')" onmouseenter="playHoverSound()" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700">
+                    Fondasi & Asesmen
+                </button>
+                <button onclick="setCategory('Perilaku & Terapi')" onmouseenter="playHoverSound()" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700">
+                    Perilaku & Terapi
+                </button>
+                <button onclick="setCategory('Penanganan Khusus')" onmouseenter="playHoverSound()" class="cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700">
+                    Penanganan Khusus
+                </button>
+            </div>
+        </section>
+
+        <!-- Grid Kartu Materi -->
+        <section id="materialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            <!-- Kartu akan di-render secara dinamis melalui JavaScript -->
+        </section>
+
+        <!-- Pesan Jika Pencarian Kosong -->
+        <div id="emptyState" class="hidden text-center py-16 glass-panel rounded-2xl border border-slate-800 mb-16">
+            <i class="fa-solid fa-folder-open text-4xl text-slate-500 mb-3"></i>
+            <h4 class="font-heading text-lg font-bold text-white">Materi Tidak Ditemukan</h4>
+            <p class="text-sm text-slate-400 mt-1">Coba gunakan kata kunci pencarian atau kategori yang berbeda.</p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 rounded-lg bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold hover:bg-teal-500/30 transition-all">
+                Tampilkan Semua Materi
+            </button>
+        </div>
+
+        <!-- Banner Khusus: Refleksi Guru (SIAP GPK) -->
+        <section class="relative rounded-3xl overflow-hidden p-8 sm:p-10 lg:p-12 border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 shadow-2xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-8 space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-clipboard-check"></i> Evaluasi & Tindak Lanjut
+                    </div>
+                    <h3 class="font-heading text-2xl sm:text-3xl font-extrabold text-white">
+                        Sudah Mempelajari Materi? Mari Isi Refleksi Guru!
+                    </h3>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Sebagai bagian dari penguatan layanan inklusif di satuan pendidikan, Bapak/Ibu Guru diharapkan mengisi lembar refleksi dan tindak lanjut melalui portal <strong>SIAP GPK</strong> pada tautan resmi di samping.
+                    </p>
+                </div>
+                <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-end">
+                    <a href="https://s.id/siapGPK" target="_blank" rel="noopener noreferrer" onmouseenter="playHoverSound()" onclick="playSuccessSound()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-heading font-extrabold text-base text-center flex items-center justify-center gap-3 shadow-xl shadow-amber-500/25 hover:scale-[1.02] transition-all">
+                        <span>Isi Refleksi Sekarang</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                    <button onclick="copyReflectionLink()" onmouseenter="playHoverSound()" class="w-full py-3 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-medium text-xs text-center flex items-center justify-center gap-2 border border-slate-700 transition-all">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span id="copyBtnText">Salin Tautan: https://s.id/siapGPK</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 glass-panel py-8 px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold">
+                    MR
+                </div>
+                <div>
+                    <p class="text-slate-200 font-semibold">Portal Pelatihan Layanan Inklusif Satuan Pendidikan</p>
+                    <p>Dikembangkan oleh <span class="text-teal-400 font-medium">Moh. Rizal, S.Pd.,Gr</span> — Guru Inklusif Tingkat Mahir Kab. Parigi Moutong</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://s.id/siapGPK" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition-colors font-medium">Portal SIAP GPK</a>
+                <span>•</span>
+                <button onclick="resetProgress()" class="hover:text-rose-400 transition-colors">Reset Progres Belajar</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Pratinjau Materi (Embed Google Slides) -->
+    <div id="previewModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+        <div class="w-full max-w-5xl bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 bg-slate-800/90 border-b border-slate-700 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 truncate">
+                    <span id="modalBadge" class="px-2.5 py-1 rounded-md bg-teal-500/20 text-teal-300 text-xs font-bold">Modul #1</span>
+                    <h4 id="modalTitle" class="font-heading font-bold text-white text-base sm:text-lg truncate">Judul Materi</h4>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a id="modalExternalLink" href="#" target="_blank" rel="noopener noreferrer" onclick="playClickSound()" class="px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all">
+                        <span>Buka di Tab Baru</span>
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                    </a>
+                    <button onclick="closePreviewModal()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-rose-500/80 text-slate-200 hover:text-white flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Iframe Container -->
+            <div class="flex-1 bg-black relative">
+                <div id="iframeLoader" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-teal-400"></i>
+                    <p class="text-xs">Memuat dokumen presentasi...</p>
+                </div>
+                <iframe id="slideIframe" src="" class="w-full h-full border-0 relative z-10" allowfullscreen onload="document.getElementById('iframeLoader').classList.add('hidden')"></iframe>
+            </div>
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                <span><i class="fa-solid fa-circle-info text-teal-400 mr-1"></i> Jika pratinjau tidak tampil karena batasan akses browser, silakan klik tombol <strong>"Buka di Tab Baru"</strong> di kanan atas.</span>
+                <button id="modalMarkBtn" onclick="" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 font-semibold border border-slate-700 transition-all">
+                    Tandai Selesai Dipelajari
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Profil Pengembang -->
+    <div id="developerModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
+            <button onclick="closeDeveloperModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-teal-400 to-indigo-600 p-0.5 mx-auto mb-4 shadow-lg shadow-teal-500/20">
+                    <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-3xl font-heading font-extrabold text-teal-400">
+                        MR
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                    Pengembang Portal Pelatihan
+                </span>
+                <h3 class="font-heading text-2xl font-bold text-white mt-3">Moh. Rizal, S.Pd.,Gr</h3>
+                <p class="text-sm text-teal-400 font-medium mt-0.5">Guru Inklusif Tingkat Mahir</p>
+                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-map-pin text-rose-400 mr-1"></i> Kabupaten Parigi Moutong</p>
+
+                <div class="mt-6 text-left space-y-3 bg-slate-950/70 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                    <p>Portal ini dirancang khusus untuk memudahkan guru dan tenaga kependidikan dalam mengakses rangkaian materi <strong>Penguatan Layanan Inklusif di Satuan Pendidikan</strong>.</p>
+                    <p>Dilengkapi dengan integrasi tautan refleksi <strong>SIAP GPK</strong> untuk mendukung pemantauan dan peningkatan mutu layanan pendidikan inklusif secara berkelanjutan.</p>
+                </div>
+
+                <div class="mt-6">
+                    <button onclick="closeDeveloperModal()" class="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-heading font-bold text-sm transition-all">
+                        Tutup Profil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel border border-teal-500/40 bg-slate-900/95 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs sm:text-sm font-medium">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-teal-400 text-base"></i>
+            <span id="toastMessage">Pesan notifikasi</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. DATA 11 MATERI PELATIHAN INKLUSIF
+        // ==========================================
+        const materialsData = [
+            {
+                id: 1,
+                title: "Jenis dan Hambatan Murid Berkebutuhan Khusus",
+                category: "Fondasi & Asesmen",
+                icon: "fa-children",
+                color: "from-teal-500 to-emerald-500",
+                badgeColor: "text-teal-300 bg-teal-500/15 border-teal-500/30",
+                desc: "Mengenal ragam klasifikasi, karakteristik, serta hambatan perkembangan dan belajar pada Peserta Didik Berkebutuhan Khusus (PDBK).",
+                docId: "1mVnCixPfjGPMLxzbohq4i0Oq2jq476mn",
+                url: "https://docs.google.com/presentation/d/1mVnCixPfjGPMLxzbohq4i0Oq2jq476mn/edit?usp=sharing&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 2,
+                title: "Menyusun PPI (Program Pembelajaran Individual)",
+                category: "Fondasi & Asesmen",
+                icon: "fa-file-signature",
+                color: "from-blue-500 to-indigo-500",
+                badgeColor: "text-blue-300 bg-blue-500/15 border-blue-500/30",
+                desc: "Panduan sistematis merancang kurikulum dan dokumen Program Pembelajaran Individual yang selaras dengan profil kebutuhan murid.",
+                docId: "1SJbN1nyxr2FLKdBdhibARflpq7-LwyVJ",
+                url: "https://docs.google.com/presentation/d/1SJbN1nyxr2FLKdBdhibARflpq7-LwyVJ/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 3,
+                title: "Mengenal Perilaku",
+                category: "Perilaku & Terapi",
+                icon: "fa-eye",
+                color: "from-purple-500 to-violet-500",
+                badgeColor: "text-purple-300 bg-purple-500/15 border-purple-500/30",
+                desc: "Konsep dasar perilaku manusia, jenis perilaku tampak (overt) dan tak tampak (covert), serta dimensi pengukuran perilaku.",
+                docId: "1xIJE7dXHL2tfGF7DgpyahNz10ohgPmd",
+                url: "https://docs.google.com/presentation/d/1xIJE7dXHL2tfGF7DgpyahNz10ohgPmd/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 4,
+                title: "Modifikasi Perilaku",
+                category: "Perilaku & Terapi",
+                icon: "fa-wand-magic-sparkles",
+                color: "from-amber-500 to-orange-500",
+                badgeColor: "text-amber-300 bg-amber-500/15 border-amber-500/30",
+                desc: "Teori dan penerapan prinsip belajar (reinforcement, punishment, token ekonomi, modelling, desensitisasi) untuk mengubah perilaku maladaptif.",
+                docId: "11Yt6scW64_2-fZjlri3NdPLdVqLn-saB",
+                url: "https://docs.google.com/presentation/d/11Yt6scW64_2-fZjlri3NdPLdVqLn-saB/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 5,
+                title: "Asesmen Perilaku",
+                category: "Fondasi & Asesmen",
+                icon: "fa-magnifying-glass-chart",
+                color: "from-cyan-500 to-blue-500",
+                badgeColor: "text-cyan-300 bg-cyan-500/15 border-cyan-500/30",
+                desc: "Teknik pengumpulan data dan analisis fungsi perilaku (Antecedent, Behavior, Consequence) untuk merancang intervensi yang akurat.",
+                docId: "1fuXS8mkGjjRLLn2Hxjav5EhSqSzpxcHU",
+                url: "https://docs.google.com/presentation/d/1fuXS8mkGjjRLLn2Hxjav5EhSqSzpxcHU/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 6,
+                title: "Identifikasi dan Asesmen",
+                category: "Fondasi & Asesmen",
+                icon: "fa-clipboard-user",
+                color: "from-emerald-500 to-teal-500",
+                badgeColor: "text-emerald-300 bg-emerald-500/15 border-emerald-500/30",
+                desc: "Prosedur penjaringan (skrining) dini dan asesmen komprehensif untuk memetakan profil kekuatan serta kebutuhan belajar peserta didik.",
+                docId: "1nub1J8G2EfL7hA0R2m6BcSp-ESuFnDqO",
+                url: "https://docs.google.com/presentation/d/1nub1J8G2EfL7hA0R2m6BcSp-ESuFnDqO/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 7,
+                title: "Cognitive Behavior Therapies (CBT)",
+                category: "Perilaku & Terapi",
+                icon: "fa-brain",
+                color: "from-fuchsia-500 to-pink-500",
+                badgeColor: "text-fuchsia-300 bg-fuchsia-500/15 border-fuchsia-500/30",
+                desc: "Pendekatan terapi kognitif-perilaku untuk membantu peserta didik mengenali dan merestrukturisasi pola pikir maupun respons negatif.",
+                docId: "1X4hV3p-LIcF0C393vENZsj2Z7pnjYwV1",
+                url: "https://docs.google.com/presentation/d/1X4hV3p-LIcF0C393vENZsj2Z7pnjYwV1/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 8,
+                title: "Mengatasi Kesulitan Belajar pada Anak",
+                category: "Penanganan Khusus",
+                icon: "fa-book-open",
+                color: "from-indigo-500 to-purple-500",
+                badgeColor: "text-indigo-300 bg-indigo-500/15 border-indigo-500/30",
+                desc: "Strategi praktis dan intervensi edukatif dalam menangani hambatan belajar spesifik seperti Disleksia, Disgrafia, dan Diskalkulia.",
+                docId: "1H-ewbJiTQF_mCGzm6KDaxlM8MfPu5vm0",
+                url: "https://docs.google.com/presentation/d/1H-ewbJiTQF_mCGzm6KDaxlM8MfPu5vm0/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 9,
+                title: "Mengatasi Anak Hiperaktif (ADHD)",
+                category: "Penanganan Khusus",
+                icon: "fa-bolt",
+                color: "from-orange-500 to-red-500",
+                badgeColor: "text-orange-300 bg-orange-500/15 border-orange-500/30",
+                desc: "Pemahaman faktor genetik-neurologis, pemetaan potensi kecerdasan, serta manajemen kelas dan keluarga bagi anak dengan ADHD.",
+                docId: "114t5K2xqlytDDZ9I-EgXhWUWIzAVMDDI",
+                url: "https://docs.google.com/presentation/d/114t5K2xqlytDDZ9I-EgXhWUWIzAVMDDI/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 10,
+                title: "Strategi Atasi Bullying di Sekolah",
+                category: "Penanganan Khusus",
+                icon: "fa-shield-heart",
+                color: "from-rose-500 to-pink-500",
+                badgeColor: "text-rose-300 bg-rose-500/15 border-rose-500/30",
+                desc: "Langkah preventif, kuratif, dan ekosistem kolaborasi warga sekolah untuk mencegah perundungan serta menciptakan sekolah yang aman.",
+                docId: "1ZGhbCz4t3nXnAbiQmOUr7G9EUOKSIR-0",
+                url: "https://docs.google.com/presentation/d/1ZGhbCz4t3nXnAbiQmOUr7G9EUOKSIR-0/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            },
+            {
+                id: 11,
+                title: "Gangguan Perkembangan dan Perilaku",
+                category: "Perilaku & Terapi",
+                icon: "fa-seedling",
+                color: "from-lime-500 to-emerald-500",
+                badgeColor: "text-lime-300 bg-lime-500/15 border-lime-500/30",
+                desc: "Deteksi dini, pemahaman spektrum gangguan perkembangan dan perilaku pada masa kanak-kanak hingga remaja beserta penanganannya.",
+                docId: "1RslLy4tltRUa4B1bKd0plYiJYX6MuN6m",
+                url: "https://docs.google.com/presentation/d/1RslLy4tltRUa4B1bKd0plYiJYX6MuN6m/edit?usp=drive_link&ouid=109349127435393462591&rtpof=true&sd=true"
+            }
+        ];
+
+        // State Aplikasi
+        let currentCategory = 'Semua';
+        let completedModules = JSON.parse(localStorage.getItem('completedInclusiveModules')) || [];
+        let sfxEnabled = true;
+        let bgmPlaying = false;
+        let audioInitialized = false;
+        let uiSynth, bgmSynth, bgmLoop;
+
+        // ==========================================
+        // 2. SISTEM AUDIO (TONE.JS SYNTHESIS)
+        // ==========================================
+        async function initAudio() {
+            if (audioInitialized) return;
+            try {
+                await Tone.start();
+                
+                // Synth untuk efek tombol (SFX)
+                uiSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+                }).toDestination();
+                uiSynth.volume.value = -14;
+
+                // Synth lembut untuk Backsound Ambient
+                const reverb = new Tone.Reverb({ decay: 4, wet: 0.5 }).toDestination();
+                bgmSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.8, decay: 1.5, sustain: 0.4, release: 2.5 }
+                }).connect(reverb);
+                bgmSynth.volume.value = -22;
+
+                // Progresi Chord Menenangkan (Fmaj7 - G6 - Am7 - Cmaj7)
+                const chords = [
+                    ["F3", "A3", "C4", "E4"],
+                    ["G3", "B3", "D4", "E4"],
+                    ["A3", "C4", "E4", "G4"],
+                    ["C3", "G3", "B3", "E4"]
+                ];
+                let chordIdx = 0;
+
+                bgmLoop = new Tone.Loop((time) => {
+                    bgmSynth.triggerAttackRelease(chords[chordIdx], "2n", time);
+                    chordIdx = (chordIdx + 1) % chords.length;
+                }, "1m");
+
+                Tone.Transport.bpm.value = 68;
+                audioInitialized = true;
+            } catch (e) {
+                console.warn("Audio belum dapat diinisialisasi:", e);
+            }
+        }
+
+        function playHoverSound() {
+            if (!sfxEnabled) return;
+            if (!audioInitialized) {
+                // Inisialisasi senyap bila memungkinkan
+                return;
+            }
+            try {
+                uiSynth.triggerAttackRelease("C6", "32n", Tone.now(), 0.25);
+            } catch (e) {}
+        }
+
+        async function playClickSound() {
+            if (!sfxEnabled) return;
+            await initAudio();
+            try {
+                const now = Tone.now();
+                uiSynth.triggerAttackRelease("E5", "16n", now, 0.6);
+                uiSynth.triggerAttackRelease("A5", "16n", now + 0.05, 0.8);
+            } catch (e) {}
+        }
+
+        async function playSuccessSound() {
+            if (!sfxEnabled) return;
+            await initAudio();
+            try {
+                const now = Tone.now();
+                uiSynth.triggerAttackRelease("C5", "16n", now, 0.6);
+                uiSynth.triggerAttackRelease("E5", "16n", now + 0.07, 0.7);
+                uiSynth.triggerAttackRelease("G5", "16n", now + 0.14, 0.8);
+                uiSynth.triggerAttackRelease("C6", "8n", now + 0.21, 0.9);
+            } catch (e) {}
+        }
+
+        async function toggleBacksound() {
+            await initAudio();
+            const btnText = document.getElementById('bgmText');
+            const eqContainer = document.getElementById('eqContainer');
+            const btn = document.getElementById('bgmToggleBtn');
+
+            if (!bgmPlaying) {
+                Tone.Transport.start();
+                bgmLoop.start(0);
+                bgmPlaying = true;
+                btnText.textContent = "Musik: Aktif";
+                eqContainer.classList.add('playing');
+                btn.classList.add('border-teal-500/60', 'text-teal-300');
+                showToast("Musik latar diaktifkan", "fa-music");
+            } else {
+                bgmLoop.stop();
+                Tone.Transport.stop();
+                bgmPlaying = false;
+                btnText.textContent = "Musik: Mati";
+                eqContainer.classList.remove('playing');
+                btn.classList.remove('border-teal-500/60', 'text-teal-300');
+                showToast("Musik latar dihentikan", "fa-volume-mute");
+            }
+            playClickSound();
+        }
+
+        function toggleSFX() {
+            sfxEnabled = !sfxEnabled;
+            const icon = document.getElementById('sfxIcon');
+            const text = document.getElementById('sfxText');
+            const btn = document.getElementById('sfxToggleBtn');
+
+            if (sfxEnabled) {
+                icon.className = "fa-solid fa-volume-high";
+                text.textContent = "Nada: Aktif";
+                btn.classList.replace('text-slate-400', 'text-teal-400');
+                playClickSound();
+                showToast("Nada tombol diaktifkan", "fa-volume-high");
+            } else {
+                icon.className = "fa-solid fa-volume-xmark";
+                text.textContent = "Nada: Bisu";
+                btn.classList.replace('text-teal-400', 'text-slate-400');
+                showToast("Nada tombol dinonaktifkan", "fa-volume-xmark");
+            }
+        }
+
+        // ==========================================
+        // 3. RENDER & FILTER KARTU MATERI
+        // ==========================================
+        function renderMaterials() {
+            const grid = document.getElementById('materialsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = materialsData.filter(item => {
+                const matchCat = currentCategory === 'Semua' || item.category === currentCategory;
+                const matchSearch = item.title.toLowerCase().includes(searchQuery) || 
+                                    item.desc.toLowerCase().includes(searchQuery) ||
+                                    item.category.toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(item => {
+                const isDone = completedModules.includes(item.id);
+                return `
+                <article onmouseenter="playHoverSound()" class="module-card glass-panel rounded-2xl p-6 flex flex-col justify-between border ${isDone ? 'border-teal-500/50 bg-teal-950/15' : 'border-slate-800'}">
+                    <div>
+                        <!-- Header Kartu -->
+                        <div class="flex items-center justify-between gap-2 mb-5">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold border ${item.badgeColor}">
+                                ${item.category}
+                            </span>
+                            <button onclick="toggleComplete(${item.id})" title="${isDone ? 'Tandai belum selesai' : 'Tandai selesai dipelajari'}" class="w-8 h-8 rounded-full flex items-center justify-center transition-all ${isDone ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}">
+                                <i class="fa-solid fa-check text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Ikon & Judul -->
+                        <div class="flex items-start gap-4 mb-3">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg shrink-0 mt-0.5">
+                                <i class="fa-solid ${item.icon} text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Materi #${String(item.id).padStart(2, '0')}</span>
+                                <h4 class="font-heading font-bold text-lg text-white leading-snug mt-0.5">${item.title}</h4>
+                            </div>
+                        </div>
+
+                        <!-- Deskripsi -->
+                        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+                            ${item.desc}
+                        </p>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="pt-4 border-t border-slate-800/80 flex items-center gap-2.5">
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" onclick="handleOpenMaterial(${item.id})" class="flex-1 py-2.5 px-4 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-heading font-bold text-xs sm:text-sm text-center flex items-center justify-center gap-2 shadow-md shadow-teal-500/15 transition-all">
+                            <span>Buka Materi</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                        <button onclick="openPreviewModal(${item.id})" class="py-2.5 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 transition-all" title="Pratinjau Slide di Dalam Web">
+                            <i class="fa-regular fa-eye text-teal-400"></i>
+                            <span class="hidden sm:inline">Pratinjau</span>
+                        </button>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        }
+
+        function setCategory(cat) {
+            playClickSound();
+            currentCategory = cat;
+            const buttons = document.querySelectorAll('#categoryTabs .cat-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes(cat)) {
+                    btn.className = "cat-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20";
+                } else {
+                    btn.className = "cat-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700";
+                }
+            });
+            renderMaterials();
+        }
+
+        function filterMaterials() {
+            renderMaterials();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            setCategory('Semua');
+        }
+
+        // ==========================================
+        // 4. PROGRES BELAJAR & INTERAKSI MODAL
+        // ==========================================
+        function updateProgressUI() {
+            const count = completedModules.length;
+            const total = materialsData.length;
+            const pct = Math.round((count / total) * 100);
+            document.getElementById('progressText').textContent = `${count} / ${total} Materi (${pct}%)`;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+        }
+
+        function toggleComplete(id) {
+            playSuccessSound();
+            const idx = completedModules.indexOf(id);
+            if (idx === -1) {
+                completedModules.push(id);
+                showToast(`Materi #${id} ditandai selesai dipelajari!`, "fa-circle-check");
+            } else {
+                completedModules.splice(idx, 1);
+                showToast(`Tanda selesai Materi #${id} dibatalkan`, "fa-rotate-left");
+            }
+            localStorage.setItem('completedInclusiveModules', JSON.stringify(completedModules));
+            updateProgressUI();
+            renderMaterials();
+        }
+
+        function handleOpenMaterial(id) {
+            playClickSound();
+            if (!completedModules.includes(id)) {
+                completedModules.push(id);
+                localStorage.setItem('completedInclusiveModules', JSON.stringify(completedModules));
+                updateProgressUI();
+                renderMaterials();
+            }
+        }
+
+        function resetProgress() {
+            playClickSound();
+            completedModules = [];
+            localStorage.removeItem('completedInclusiveModules');
+            updateProgressUI();
+            renderMaterials();
+            showToast("Progres belajar telah direset", "fa-trash-can");
+        }
+
+        function openPreviewModal(id) {
+            playClickSound();
+            const item = materialsData.find(m => m.id === id);
+            if (!item) return;
+
+            document.getElementById('modalBadge').textContent = `Materi #${String(item.id).padStart(2, '0')}`;
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalExternalLink').href = item.url;
+            document.getElementById('iframeLoader').classList.remove('hidden');
+
+            // Gunakan URL pratinjau Google Drive/Slides
+            const previewUrl = `https://docs.google.com/presentation/d/${item.docId}/preview`;
+            document.getElementById('slideIframe').src = previewUrl;
+
+            const markBtn = document.getElementById('modalMarkBtn');
+            const isDone = completedModules.includes(item.id);
+            markBtn.textContent = isDone ? "Sudah Selesai Dipelajari ✓" : "Tandai Selesai Dipelajari";
+            markBtn.onclick = () => {
+                toggleComplete(item.id);
+                const nowDone = completedModules.includes(item.id);
+                markBtn.textContent = nowDone ? "Sudah Selesai Dipelajari ✓" : "Tandai Selesai Dipelajari";
+            };
+
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            playClickSound();
+            document.getElementById('previewModal').classList.add('hidden');
+            document.getElementById('slideIframe').src = '';
+        }
+
+        function openDeveloperModal() {
+            playClickSound();
+            document.getElementById('developerModal').classList.remove('hidden');
+        }
+
+        function closeDeveloperModal() {
+            playClickSound();
+            document.getElementById('developerModal').classList.add('hidden');
+        }
+
+        function copyReflectionLink() {
+            playSuccessSound();
+            const link = "https://s.id/siapGPK";
+            const tempInput = document.createElement("input");
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            const copyText = document.getElementById('copyBtnText');
+            copyText.textContent = "Tautan Berhasil Disalin!";
+            showToast("Tautan https://s.id/siapGPK berhasil disalin", "fa-clipboard-check");
+            setTimeout(() => {
+                copyText.textContent = "Salin Tautan: https://s.id/siapGPK";
+            }, 3000);
+        }
+
+        let toastTimeout;
+        function showToast(message, iconClass = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            icon.className = `fa-solid ${iconClass} text-teal-400 text-base`;
+            msg.textContent = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        window.onload = function() {
+            renderMaterials();
+            updateProgressUI();
+        };
+    </script>
+</body>
+</html>
